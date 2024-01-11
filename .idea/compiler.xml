@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="17">
+      <module name="MTodo.daily" target="17" />
+      <module name="MTodo.data" target="17" />
+      <module name="MTodo.datastore" target="17" />
+      <module name="MTodo.designsystem" target="17" />
+      <module name="MTodo.domain" target="17" />
+      <module name="MTodo.history" target="17" />
+      <module name="MTodo.mandalart" target="17" />
+      <module name="MTodo.network" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
