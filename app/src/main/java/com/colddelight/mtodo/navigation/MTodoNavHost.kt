@@ -7,6 +7,7 @@ import com.colddelight.daily.navigation.DailyRoute
 import com.colddelight.mtodo.ui.MTodoAppState
 import com.colddelight.daily.navigation.dailyScreen
 import com.colddelight.history.navigation.historyScreen
+import com.colddelight.login.navigation.loginScreen
 import com.colddelight.madalart.navigation.mandalArtScreen
 
 @Composable
@@ -21,8 +22,9 @@ fun MtodoNavHost(
         startDestination = startDestination,
         modifier = modifier
     ) {
+        loginScreen()
+        mandalArtScreen()
         dailyScreen()
         historyScreen()
-        mandalArtScreen()
     }
 }

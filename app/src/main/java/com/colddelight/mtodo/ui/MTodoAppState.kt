@@ -3,7 +3,6 @@ package com.colddelight.mtodo.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.util.trace
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -21,36 +20,19 @@ import com.colddelight.mtodo.navigation.TopLevelDestination
 import com.colddelight.mtodo.navigation.TopLevelDestination.DAILY
 import com.colddelight.mtodo.navigation.TopLevelDestination.HISTORY
 import com.colddelight.mtodo.navigation.TopLevelDestination.MANDALART
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun rememberMtodoAppState(
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberNavController(),
-//    loginHelper: LoginHelper,
-    shouldShowBottomBar: Boolean,
 ): MTodoAppState {
-    return remember(
-        navController,
-        coroutineScope,
-//        loginHelper,
-        shouldShowBottomBar
-    ) {
-        MTodoAppState(
-            navController,
-            coroutineScope,
-//            loginHelper,
-            shouldShowBottomBar
-        )
+    return remember(navController) {
+        MTodoAppState(navController)
     }
 }
 
 @Stable
 class MTodoAppState(
     val navController: NavHostController,
-    val coroutineScope: CoroutineScope,
-//    loginHelper: LoginHelper,
-    var shouldShowBottomBar: Boolean,
 ) {
     val currentDestination: NavDestination?
         @Composable get() = navController
@@ -76,11 +58,7 @@ class MTodoAppState(
             }
 
             when (topLevelDestination) {
-                DAILY -> {
-                    navController.navigateToDaily(topLevelNavOptions)
-                    shouldShowBottomBar = true
-                }
-
+                DAILY -> navController.navigateToDaily(topLevelNavOptions)
                 HISTORY -> navController.navigateToHistory(topLevelNavOptions)
                 MANDALART -> navController.navigateToMandalArt(topLevelNavOptions)
             }

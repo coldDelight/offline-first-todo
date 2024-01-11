@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.colddelight.daily.navigation.DailyRoute
+import com.colddelight.data.util.LoginHelper
 import com.colddelight.designsystem.component.MTodoNavigationBar
 import com.colddelight.designsystem.component.MTodoNavigationBarItem
 import com.colddelight.mtodo.navigation.MtodoNavHost
@@ -28,15 +29,9 @@ import com.colddelight.mtodo.navigation.TopLevelDestination.MANDALART
 
 @Composable
 fun MTodoApp(
-//    loginHelper: LoginHelper,
-    appState: MTodoAppState = rememberMtodoAppState(
-//        loginHelper = loginHelper,
-        shouldShowBottomBar = true
-    ),
+    appState: MTodoAppState = rememberMtodoAppState(),
 ) {
-    val currentDestination: String = appState.currentDestination?.route ?: DailyRoute.route
     val destination = appState.currentTopLevelDestination
-
     Scaffold(
         bottomBar = {
             when (destination) {
