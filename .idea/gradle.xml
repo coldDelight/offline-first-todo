@@ -36,6 +36,7 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/daily" />
             <option value="$PROJECT_DIR$/feature/history" />
+            <option value="$PROJECT_DIR$/feature/login" />
             <option value="$PROJECT_DIR$/feature/mandalart" />
           </set>
         </option>

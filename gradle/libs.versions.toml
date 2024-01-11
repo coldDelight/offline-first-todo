@@ -1,19 +1,19 @@
 [versions]
-androidxActivity = "1.8.0"
-androidGradlePlugin = "8.1.2"
+androidxActivity = "1.8.2"
+androidGradlePlugin = "8.1.4"
 org-jetbrains-kotlin-android = "1.8.10"
 androidxLifecycle = "2.6.2"
 kotlinxCoroutines = "1.7.3"
 kotlin = "1.9.10"
 androidxAppCompat = "1.6.1"
 androidxCore = "1.12.0"
-androidTools = "31.1.2"
+androidTools = "31.2.1"
 
 ksp = "1.9.10-1.0.13"
 
 #compose
 androidxComposeBom = "2023.10.01"
-androidxHiltNavigationCompose = "1.0.0"
+androidxHiltNavigationCompose = "1.1.0"
 material = "1.10.0"
 androidxComposeCompiler = "1.5.3"
 #hilt
@@ -22,18 +22,18 @@ hilt = "2.48.1"
 junit = "1.1.5"
 androidxEspresso = "3.5.1"
 #room
-room = "2.6.0"
+room = "2.6.1"
 #datastore
 androidxDataStore = "1.0.0"
 #serialization
 kotlinxSerializationJson = "1.6.0"
 #supabase
-supabase = "1.4.7"
+supabase = "2.0.4"
 
 
 junit-junit = "4.13.2"
 appcompat = "1.6.1"
-com-google-android-material-material = "1.10.0"
+com-google-android-material-material = "1.11.0"
 
 
 [libraries]
@@ -70,7 +70,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 #supbase
 supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt", version.ref = "supabase" }
 supabase-gotrue = { group = "io.github.jan-tennert.supabase", name = "gotrue-kt", version.ref = "supabase" }
-
+supabase-compose-auth = { group = "io.github.jan-tennert.supabase", name = "compose-auth", version.ref = "supabase" }
+supabase-compose-auth-ui = { group = "io.github.jan-tennert.supabase", name = "compose-auth-ui", version.ref = "supabase" }
 
 junit-junit = { group = "junit", name = "junit", version.ref = "junit-junit" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
