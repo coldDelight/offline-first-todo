@@ -10,7 +10,7 @@ fun NavController.navigateToDaily(navOptions: NavOptions? = null) {
     this.navigate(DailyRoute.route, navOptions)
 }
 
-fun NavGraphBuilder.historyScreen(
+fun NavGraphBuilder.dailyScreen(
 ) {
     composable(route = DailyRoute.route) {
         DailyScreen()

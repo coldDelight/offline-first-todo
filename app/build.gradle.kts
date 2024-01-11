@@ -38,17 +38,20 @@ dependencies {
 
     implementation(project(":feature:mandalart"))
     implementation(project(":feature:daily"))
+    implementation(project(":feature:login"))
     implementation(project(":feature:history"))
-
-
 
     implementation(project(":core:designsystem"))
     implementation(project(":core:data"))
     implementation(project(":core:model"))
 
 
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.hilt.ext.work)
+    implementation(libs.androidx.work.ktx)
 }
