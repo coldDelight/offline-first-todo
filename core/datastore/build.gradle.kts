@@ -11,5 +11,4 @@ dependencies {
 
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences)
-//    implementation(libs.kotlinx.coroutines.android)
 }
