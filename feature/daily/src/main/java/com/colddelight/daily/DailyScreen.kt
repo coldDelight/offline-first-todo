@@ -27,14 +27,8 @@ fun DailyScreen(
             Arrangement.Center,
             Alignment.CenterHorizontally
         ) {
-            Button(onClick = { dailyViewModel.updateToken("sss") }) {
-                Text("임시 토큰 추가 ")
-
-            }
-
             Button(onClick = { dailyViewModel.delToken() }) {
-                Text("임시 토큰 삭제 ")
-
+                Text("로그 아웃")
             }
         }
     }
