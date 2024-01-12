@@ -31,23 +31,25 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun loginG() {
-        viewModelScope.launch {
-            client.auth.signInWith(Google)
-        }
+    suspend fun loginG() {
+        client.auth.signInWith(Google)
     }
 
     fun checkLoginStatus(result: NativeSignInResult) {
         when (result) {
-
             is NativeSignInResult.Success -> {
                 updateToken(client.auth.currentAccessTokenOrNull() ?: "")
             }
+            is NativeSignInResult.ClosedByUser -> {
+            }
+            is NativeSignInResult.Error -> {
+                viewModelScope.launch {
+                    loginG()
+                }
+            }
+            is NativeSignInResult.NetworkError -> {
 
-            is NativeSignInResult.ClosedByUser -> {}
-            is NativeSignInResult.Error -> {}
-
-            is NativeSignInResult.NetworkError -> {}
+            }
         }
     }
 
