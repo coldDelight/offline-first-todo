@@ -15,10 +15,16 @@ interface TodoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodo(todo: TodoEntity)
 
+
+    @Query("UPDATE todo SET is_done = :isDone WHERE id = :id")
+    suspend fun toggleTodo(id: Int, isDone: Boolean)
+
     @Query("SELECT * FROM todo WHERE date = :date")
     fun getTodos(date: LocalDate): Flow<List<TodoEntity>>
 
 
     @Query("DELETE FROM todo WHERE id = :id")
     suspend fun deleteTodo(id: Int)
+
+
 }

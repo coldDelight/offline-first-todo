@@ -31,6 +31,7 @@ class LoginViewModel @Inject constructor(
 //        }
 //    }
 
+
     suspend fun loginG() {
         client.auth.signInWith(Google)
     }

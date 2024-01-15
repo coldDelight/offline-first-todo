@@ -21,6 +21,10 @@ class TodoRepositoryImpl @Inject constructor(
         todoDao.insertTodo(todo.asEntity())
     }
 
+    override suspend fun toggleTodo(id: Int, isDone: Boolean) {
+        todoDao.toggleTodo(id, isDone)
+    }
+
     override suspend fun delTodo(id: Int) {
         todoDao.deleteTodo(id)
     }

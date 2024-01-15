@@ -15,18 +15,18 @@ enum class TopLevelDestination(
     val iconText: String,
 ) {
     MANDALART(
-        selectedIcon = Icons.Outlined.Info,
-        unselectedIcon = Icons.Filled.Info,
+        unselectedIcon = Icons.Outlined.Info,
+        selectedIcon = Icons.Filled.Info,
         iconText = "만다라트",
     ),
     DAILY(
-        selectedIcon = Icons.Outlined.Edit,
-        unselectedIcon = Icons.Filled.Edit,
+        unselectedIcon = Icons.Outlined.Edit,
+        selectedIcon = Icons.Filled.Edit,
         iconText = "데일리",
     ),
     HISTORY(
-        selectedIcon = Icons.Outlined.DateRange,
-        unselectedIcon = Icons.Filled.DateRange,
+        unselectedIcon = Icons.Outlined.DateRange,
+        selectedIcon = Icons.Filled.DateRange,
         iconText = "기록",
     ),
 

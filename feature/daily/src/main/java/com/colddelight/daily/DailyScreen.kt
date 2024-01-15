@@ -3,6 +3,7 @@ package com.colddelight.daily
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,7 +61,6 @@ fun DailyScreen(
             )
         },
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -68,8 +68,10 @@ fun DailyScreen(
         ) {
             DailyContentWithState(
                 uiState = dailyUiState,
-                showBottomSheet = showBottomSheet
-            ) { dailyViewModel.changeShowBottomSheet() }
+                showBottomSheet = showBottomSheet,
+                onToggleTodo = { id, isDone -> dailyViewModel.toggleTodo(id, isDone) },
+                onToggleSheet = { dailyViewModel.changeShowBottomSheet() }
+            )
         }
     }
 }
@@ -78,7 +80,8 @@ fun DailyScreen(
 private fun DailyContentWithState(
     uiState: DailyUiState,
     showBottomSheet: Boolean,
-    onDismissSheet: (Boolean) -> Unit
+    onToggleSheet: (Boolean) -> Unit,
+    onToggleTodo: (Int, Boolean) -> Unit
 ) {
     when (uiState) {
         is DailyUiState.Loading -> {}
@@ -90,7 +93,8 @@ private fun DailyContentWithState(
                 uiState.totTodos,
                 uiState.todoList,
                 showBottomSheet,
-                onDismissSheet
+                onToggleSheet,
+                onToggleTodo
             )
     }
 }
@@ -103,7 +107,8 @@ fun DailyContent(
     totTodos: Int,
     todoList: List<Todo>,
     showBottomSheet: Boolean,
-    onDismissSheet: (Boolean) -> Unit
+    onToggleSheet: (Boolean) -> Unit,
+    onToggleTodo: (Int, Boolean) -> Unit
 
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -122,12 +127,12 @@ fun DailyContent(
             Text(text = "$doneTodos / $totTodos")
         }
         items(todoList) {
-            TodoItem(it)
+            TodoItem(it, onToggleTodo, onToggleSheet)
         }
         item {
             if (showBottomSheet) {
                 InsertBottomSheet(
-                    onDismissSheet = onDismissSheet,
+                    onDismissSheet = onToggleSheet,
                     sheetState = sheetState
                 )
             }
@@ -142,7 +147,8 @@ fun DailyContent(
 fun InsertBottomSheet(
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
-) {
+
+    ) {
     ModalBottomSheet(
         onDismissRequest = { onDismissSheet(false) },
         sheetState = sheetState,
@@ -159,10 +165,16 @@ fun InsertBottomSheet(
 }
 
 @Composable
-fun TodoItem(todo: Todo) {
+fun TodoItem(
+    todo: Todo,
+    onToggleTodo: (Int, Boolean) -> Unit,
+    onToggleSheet: (Boolean) -> Unit,
+
+    ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onToggleSheet(true) }
             .padding(16.dp)
             .border(1.dp, Color.Black)
     ) {
@@ -174,7 +186,7 @@ fun TodoItem(todo: Todo) {
         ) {
             Checkbox(
                 checked = todo.isDone,
-                onCheckedChange = null
+                onCheckedChange = { onToggleTodo(todo.id, it) }
             )
             Column {
                 Text(text = todo.name)
@@ -198,7 +210,7 @@ fun DailyPreview() {
         doneTodos = 0,
         totTodos = 3,
         todoList = tmp,
-        false, {}
+        false, {}, { _, _ -> }
     )
 
 }
