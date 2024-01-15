@@ -25,11 +25,11 @@ class LoginViewModel @Inject constructor(
 
     ) : ViewModel() {
 
-    init {
-        viewModelScope.launch {
-            bookDataSource.getBook()
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            bookDataSource.getBook()
+//        }
+//    }
 
     suspend fun loginG() {
         client.auth.signInWith(Google)
