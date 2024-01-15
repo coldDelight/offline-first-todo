@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.TodoRepository
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -18,18 +19,27 @@ import javax.inject.Inject
 class DailyViewModel @Inject constructor(
     private val repository: TodoRepository
 ) : ViewModel() {
-//    init {
+    //    init {
 //        viewModelScope.launch {
 //            repository.addTmp()
 //
 //        }
 //    }
+    private val _showBottomSheet =
+        MutableStateFlow<Boolean>(false)
+    val showBottomSheet: StateFlow<Boolean> = _showBottomSheet
+
+
+    fun changeShowBottomSheet() {
+        viewModelScope.launch {
+            _showBottomSheet.value = !_showBottomSheet.value
+        }
+    }
 
     val dailyUiState: StateFlow<DailyUiState> =
         repository.getTodo(LocalDate.now()).map {
             val totTodos = it.size
             val doneTodos = it.filter { todo -> todo.isDone }.size
-
             DailyUiState.Success(today = LocalDate.now().toString(), doneTodos, totTodos, it)
         }.catch {
             DailyUiState.Error(it.message ?: "err")
