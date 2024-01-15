@@ -27,9 +27,7 @@ fun DailyScreen(
             Arrangement.Center,
             Alignment.CenterHorizontally
         ) {
-            Button(onClick = { dailyViewModel.delToken() }) {
-                Text("로그 아웃")
-            }
+
         }
     }
 }

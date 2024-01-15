@@ -43,8 +43,6 @@ fun LoginScreen(
             ) {
                 ProviderButtonContent(Google)
             }
-
-
         }
     }
 }

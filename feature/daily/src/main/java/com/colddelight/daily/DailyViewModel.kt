@@ -9,17 +9,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DailyViewModel @Inject constructor(
-    private val userDataSource: UserPreferencesDataSource,
 ) : ViewModel() {
-    fun updateToken(token: String) {
-        viewModelScope.launch {
-            userDataSource.saveToken(token)
-        }
-    }
 
-    fun delToken() {
-        viewModelScope.launch {
-            userDataSource.delToken()
-        }
-    }
+
+
 }

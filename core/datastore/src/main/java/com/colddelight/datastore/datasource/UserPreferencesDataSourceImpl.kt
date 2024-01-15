@@ -23,7 +23,7 @@ class UserPreferencesDataSourceImpl @Inject constructor(
         preferences[PreferencesKey.SUPABASE_TOKEN] ?: ""
     }
 
-    override val isNewUser: Flow<Boolean> = dataStore.data.map { preferences ->
+    override val isNewUser = dataStore.data.map { preferences ->
         preferences[PreferencesKey.IS_NEWUSER] ?: true
     }
 

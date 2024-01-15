@@ -1,5 +1,7 @@
 package com.colddelight.data.di
 
+import com.colddelight.data.repository.TodoRepository
+import com.colddelight.data.repository.TodoRepositoryImpl
 import com.colddelight.data.util.LoginHelper
 import com.colddelight.data.util.LoginHelperImpl
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
@@ -22,4 +24,9 @@ interface DataModule {
     fun bindsLoginHelper(
         loginHelper: LoginHelperImpl
     ): LoginHelper
+
+    @Binds
+    fun bindsTodoRepository(
+        todoRepository: TodoRepositoryImpl
+    ): TodoRepository
 }

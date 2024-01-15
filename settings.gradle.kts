@@ -22,6 +22,9 @@ include(":core:domain")
 include(":core:network")
 include(":core:model")
 include(":core:designsystem")
+include(":core:database")
+
+
 
 include(":feature:mandalart")
 include(":feature:daily")
