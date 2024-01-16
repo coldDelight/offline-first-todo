@@ -36,6 +36,12 @@ class DailyViewModel @Inject constructor(
         }
     }
 
+    fun deleteTodo(id: Int) {
+        viewModelScope.launch {
+            repository.delTodo(id)
+        }
+    }
+
     fun toggleTodo(id: Int, isDone: Boolean) {
         viewModelScope.launch {
             repository.toggleTodo(id, isDone)

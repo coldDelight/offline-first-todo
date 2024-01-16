@@ -7,5 +7,5 @@ data class Todo(
     val content: String,
     val isDone: Boolean,
     val date: LocalDate,
-    val id: Int=-1
+    val id: Int = 0
 )
