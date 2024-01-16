@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface TodoRepository {
-    fun getTodo(date: LocalDate): Flow<List<Todo>>
+    fun getTodo(date: Flow<LocalDate>): Flow<List<Todo>>
 
     suspend fun insertTodo(todo: Todo)
     suspend fun toggleTodo(id:Int,isDone:Boolean)

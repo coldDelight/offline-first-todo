@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.model.Todo
+import com.colddelight.model.UiState.BottomSheetUiState
+import com.colddelight.model.UiState.TodoUiState
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -138,9 +140,6 @@ fun DailyContent(
     deleteTodo: (Int) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
-
-
-
 
     LazyColumn(
         modifier = Modifier

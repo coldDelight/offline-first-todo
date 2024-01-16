@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.TodoRepository
 import com.colddelight.model.Todo
+import com.colddelight.model.UiState.BottomSheetUiState
+import com.colddelight.model.UiState.TodoUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -20,9 +23,15 @@ class DailyViewModel @Inject constructor(
     private val repository: TodoRepository
 ) : ViewModel() {
 
-
     private val _showBottomSheet = MutableStateFlow<BottomSheetUiState>(BottomSheetUiState.Down)
     val showBottomSheet: StateFlow<BottomSheetUiState> = _showBottomSheet
+
+    private val _date = MutableStateFlow<LocalDate>(LocalDate.now())
+    private val dateFlow: StateFlow<LocalDate> = _date
+
+    fun changeDate(date: LocalDate) {
+        _date.value = date
+    }
 
     fun insertTodo(todo: Todo) {
         viewModelScope.launch {
@@ -53,10 +62,10 @@ class DailyViewModel @Inject constructor(
     }
 
     val dailyUiState: StateFlow<DailyUiState> =
-        repository.getTodo(LocalDate.now()).map {
+        repository.getTodo(dateFlow).map {
             val totTodos = it.size
             val doneTodos = it.filter { todo -> todo.isDone }.size
-            DailyUiState.Success(today = LocalDate.now().toString(), doneTodos, totTodos, it)
+            DailyUiState.Success(today = dateFlow.value.toString(), doneTodos, totTodos, it)
         }.catch {
             DailyUiState.Error(it.message ?: "err")
         }.stateIn(
@@ -64,5 +73,6 @@ class DailyViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = DailyUiState.Loading
         )
+
 
 }

@@ -1,4 +1,4 @@
-package com.colddelight.daily
+package com.colddelight.model.UiState
 
 import com.colddelight.model.Todo
 import java.time.LocalDate

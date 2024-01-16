@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature:daily"))
 
     implementation ("com.kizitonwose.calendar:compose:2.4.1")
 }
