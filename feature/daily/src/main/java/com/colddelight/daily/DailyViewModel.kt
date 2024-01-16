@@ -19,15 +19,9 @@ import javax.inject.Inject
 class DailyViewModel @Inject constructor(
     private val repository: TodoRepository
 ) : ViewModel() {
-//    init {
-//        viewModelScope.launch {
-//            repository.addTmp()
-//
-//        }
-//    }
 
-    private val _showBottomSheet =
-        MutableStateFlow<BottomSheetUiState>(BottomSheetUiState.Down)
+
+    private val _showBottomSheet = MutableStateFlow<BottomSheetUiState>(BottomSheetUiState.Down)
     val showBottomSheet: StateFlow<BottomSheetUiState> = _showBottomSheet
 
     fun insertTodo(todo: Todo) {
@@ -57,7 +51,6 @@ class DailyViewModel @Inject constructor(
             }
         }
     }
-
 
     val dailyUiState: StateFlow<DailyUiState> =
         repository.getTodo(LocalDate.now()).map {

@@ -12,6 +12,4 @@ interface TodoRepository {
     suspend fun delTodo(id: Int)
 
 
-    suspend fun addTmp()
-
 }

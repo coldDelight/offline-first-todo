@@ -1,14 +1,11 @@
 package com.colddelight.daily
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -29,7 +27,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -38,10 +35,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -50,6 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.model.Todo
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import java.time.LocalDate
 
 @Composable
@@ -140,6 +140,8 @@ fun DailyContent(
     val sheetState = rememberModalBottomSheetState()
 
 
+
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -184,6 +186,21 @@ fun BottomSheet(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val datePickerState = rememberUseCaseState()
+    val selectedDate = remember { mutableStateOf<LocalDate>(LocalDate.now()) }
+    CalendarDialog(
+        state = datePickerState,
+        config = CalendarConfig(
+            yearSelection = true,
+            monthSelection = true,
+            style = CalendarStyle.MONTH,
+        ),
+        selection = CalendarSelection.Date(
+            selectedDate = selectedDate.value
+        ) { newDate ->
+            selectedDate.value = newDate
+        },
+    )
     ModalBottomSheet(
         onDismissRequest = {
             keyboardController?.hide()
@@ -201,11 +218,15 @@ fun BottomSheet(
                 .padding(16.dp)
         ) {
             item {
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
+                    IconButton(onClick = {
+                        datePickerState.show()
+                    }) {
+                        Icon(imageVector = Icons.Default.DateRange, contentDescription = "날짜")
+                    }
                     if (todo.id != 0) {
                         IconButton(onClick = {
                             deleteTodo(todo.id)
@@ -215,6 +236,9 @@ fun BottomSheet(
                         }
                     }
                 }
+            }
+            item {
+
             }
             item {
                 TextField(
@@ -248,7 +272,15 @@ fun BottomSheet(
             item {
                 Button(
                     onClick = {
-                        onInsert(Todo(todoName, todoContent, todo.isDone, todo.date, todo.id))
+                        onInsert(
+                            Todo(
+                                todoName,
+                                todoContent,
+                                todo.isDone,
+                                selectedDate.value,
+                                todo.id
+                            )
+                        )
                         onDismissSheet(false, null)
                     },
                     modifier = Modifier
@@ -261,6 +293,7 @@ fun BottomSheet(
         }
     }
 }
+
 
 @Composable
 fun TodoItem(

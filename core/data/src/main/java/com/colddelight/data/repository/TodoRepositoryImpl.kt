@@ -29,9 +29,4 @@ class TodoRepositoryImpl @Inject constructor(
         todoDao.deleteTodo(id)
     }
 
-    override suspend fun addTmp() {
-        todoDao.insertTodo(TodoEntity("1번 입니다", "1번의 내용", false, LocalDate.now()))
-        todoDao.insertTodo(TodoEntity("2번 입니다", "2번의 내용", false, LocalDate.now()))
-        todoDao.insertTodo(TodoEntity("3번 입니다", "3번의 내용", false, LocalDate.now()))
-    }
 }
