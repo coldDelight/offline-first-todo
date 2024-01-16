@@ -28,5 +28,6 @@ fun Todo.asEntity() = TodoEntity(
     name = name,
     content = content,
     isDone = isDone,
-    date = date
+    date = date,
+    id = id
 )

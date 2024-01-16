@@ -3,7 +3,6 @@ package com.colddelight.daily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.TodoRepository
-import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Todo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,9 +27,14 @@ class DailyViewModel @Inject constructor(
 //    }
 
     private val _showBottomSheet =
-        MutableStateFlow<Boolean>(false)
-    val showBottomSheet: StateFlow<Boolean> = _showBottomSheet
+        MutableStateFlow<BottomSheetUiState>(BottomSheetUiState.Down)
+    val showBottomSheet: StateFlow<BottomSheetUiState> = _showBottomSheet
 
+    fun insertTodo(todo: Todo) {
+        viewModelScope.launch {
+            repository.insertTodo(todo)
+        }
+    }
 
     fun toggleTodo(id: Int, isDone: Boolean) {
         viewModelScope.launch {
@@ -38,11 +42,16 @@ class DailyViewModel @Inject constructor(
         }
     }
 
-    fun changeShowBottomSheet() {
+    fun changeShowBottomSheet(isShow: Boolean, todoUiState: TodoUiState) {
         viewModelScope.launch {
-            _showBottomSheet.value = !_showBottomSheet.value
+            if (isShow) {
+                _showBottomSheet.value = BottomSheetUiState.Up(todoUiState)
+            } else {
+                _showBottomSheet.value = BottomSheetUiState.Down
+            }
         }
     }
+
 
     val dailyUiState: StateFlow<DailyUiState> =
         repository.getTodo(LocalDate.now()).map {

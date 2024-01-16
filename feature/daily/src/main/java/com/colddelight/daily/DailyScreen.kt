@@ -8,14 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -24,6 +26,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,8 +35,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,13 +56,12 @@ fun DailyScreen(
     val dailyUiState by dailyViewModel.dailyUiState.collectAsStateWithLifecycle()
     val showBottomSheet by dailyViewModel.showBottomSheet.collectAsStateWithLifecycle()
 
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    dailyViewModel.changeShowBottomSheet()
+                    dailyViewModel.changeShowBottomSheet(true, TodoUiState.Default())
                 },
                 content = {
                     Icon(Icons.Default.Add, contentDescription = "Add")
@@ -68,9 +76,15 @@ fun DailyScreen(
         ) {
             DailyContentWithState(
                 uiState = dailyUiState,
-                showBottomSheet = showBottomSheet,
+                bottomSheetUiSate = showBottomSheet,
                 onToggleTodo = { id, isDone -> dailyViewModel.toggleTodo(id, isDone) },
-                onToggleSheet = { dailyViewModel.changeShowBottomSheet() }
+                onToggleSheet = { isShow, todo ->
+                    dailyViewModel.changeShowBottomSheet(
+                        isShow,
+                        if (todo == null) TodoUiState.Default() else TodoUiState.Exist(todo)
+                    )
+                },
+                insertTodo = { todo -> dailyViewModel.insertTodo(todo) }
             )
         }
     }
@@ -79,10 +93,12 @@ fun DailyScreen(
 @Composable
 private fun DailyContentWithState(
     uiState: DailyUiState,
-    showBottomSheet: Boolean,
-    onToggleSheet: (Boolean) -> Unit,
-    onToggleTodo: (Int, Boolean) -> Unit
+    bottomSheetUiSate: BottomSheetUiState,
+    onToggleSheet: (Boolean, Todo?) -> Unit,
+    onToggleTodo: (Int, Boolean) -> Unit,
+    insertTodo: (Todo) -> Unit
 ) {
+
     when (uiState) {
         is DailyUiState.Loading -> {}
         is DailyUiState.Error -> Text(text = uiState.msg)
@@ -92,11 +108,13 @@ private fun DailyContentWithState(
                 uiState.doneTodos,
                 uiState.totTodos,
                 uiState.todoList,
-                showBottomSheet,
                 onToggleSheet,
-                onToggleTodo
+                onToggleTodo,
+                bottomSheetUiSate,
+                insertTodo
             )
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,9 +124,10 @@ fun DailyContent(
     doneTodos: Int,
     totTodos: Int,
     todoList: List<Todo>,
-    showBottomSheet: Boolean,
-    onToggleSheet: (Boolean) -> Unit,
-    onToggleTodo: (Int, Boolean) -> Unit
+    onToggleSheet: (Boolean, Todo?) -> Unit,
+    onToggleTodo: (Int, Boolean) -> Unit,
+    bottomSheetUiSate: BottomSheetUiState,
+    insertTodo: (Todo) -> Unit
 
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -130,36 +149,88 @@ fun DailyContent(
             TodoItem(it, onToggleTodo, onToggleSheet)
         }
         item {
-            if (showBottomSheet) {
-                InsertBottomSheet(
+            if (bottomSheetUiSate is BottomSheetUiState.Up) {
+                BottomSheet(
                     onDismissSheet = onToggleSheet,
-                    sheetState = sheetState
+                    sheetState = sheetState,
+                    bottomSheetUiSate.todoUiState.todo,
+                    insertTodo
                 )
             }
         }
-
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InsertBottomSheet(
-    onDismissSheet: (Boolean) -> Unit,
+fun BottomSheet(
+    onDismissSheet: (Boolean, Todo?) -> Unit,
     sheetState: SheetState,
+    todo: Todo,
+    onInsert: (Todo) -> Unit,
+) {
+    var todoName by remember { mutableStateOf(todo.name) }
+    var todoContent by remember { mutableStateOf(todo.content) }
+    val focusManager = LocalFocusManager.current
 
-    ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     ModalBottomSheet(
-        onDismissRequest = { onDismissSheet(false) },
+        onDismissRequest = { onDismissSheet(false, null) },
         sheetState = sheetState,
         containerColor = Color.Gray,
     ) {
-        Box(
+        LazyColumn(
             modifier = Modifier
+                .fillMaxHeight(0.7f)
                 .fillMaxWidth()
-                .aspectRatio(1F)
+                .padding(16.dp)
         ) {
-            Text("바텀시트 테스트")
+            item {
+                TextField(
+                    value = todoName,
+                    onValueChange = { todoName = it },
+                    label = { Text("제목") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier
+                        .fillMaxHeight(0.3f)
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
+            }
+            item {
+                TextField(
+                    value = todoContent,
+                    onValueChange = { todoContent = it },
+                    label = { Text("내용") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier
+                        .fillMaxHeight(0.3f)
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
+            }
+
+            item {
+                Button(
+                    onClick = {
+//                        Log.e("TAG", "BottomSheet: ${todo.id}", )
+                        onInsert(Todo(todoName, todoContent, todo.isDone, todo.date, todo.id))
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                        onDismissSheet(false, null)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                ) {
+                    Text("완료")
+                }
+            }
         }
     }
 }
@@ -168,13 +239,13 @@ fun InsertBottomSheet(
 fun TodoItem(
     todo: Todo,
     onToggleTodo: (Int, Boolean) -> Unit,
-    onToggleSheet: (Boolean) -> Unit,
+    onToggleSheet: (Boolean, Todo) -> Unit,
 
     ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onToggleSheet(true) }
+            .clickable { onToggleSheet(true, todo) }
             .padding(16.dp)
             .border(1.dp, Color.Black)
     ) {
@@ -210,7 +281,7 @@ fun DailyPreview() {
         doneTodos = 0,
         totTodos = 3,
         todoList = tmp,
-        false, {}, { _, _ -> }
+        { _, _ -> }, { _, _ -> }, BottomSheetUiState.Down, {}
     )
 
 }
