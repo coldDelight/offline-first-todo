@@ -23,12 +23,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MTodoTheme {
-                val isLogin by loginHelper.isLogin.collectAsState(true)
-                if (!isLogin) {
-                    LoginScreen()
-                } else {
-                    MTodoApp()
-                }
+                MTodoApp()
+
+//                val isLogin by loginHelper.isLogin.collectAsState(true)
+//                if (!isLogin) {
+//                    LoginScreen()
+//                } else {
+//                    MTodoApp()
+//
+//                }
             }
         }
     }
