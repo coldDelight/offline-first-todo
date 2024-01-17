@@ -4,26 +4,24 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.colddelight.database.model.TodoEntity
+import androidx.room.Update
+import com.colddelight.database.model.MandaEntity
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 
 @Dao
 interface MandaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTodo(todo: TodoEntity)
+    suspend fun initManda(manda: List<MandaEntity>)
 
+    @Query("SELECT * FROM manda")
+    fun getAllManda(): Flow<List<MandaEntity>>
 
-    @Query("UPDATE todo SET is_done = :isDone WHERE id = :id")
-    suspend fun toggleTodo(id: Int, isDone: Boolean)
+    @Update
+    suspend fun updateManda(mandaEntity: MandaEntity)
 
-    @Query("SELECT * FROM todo WHERE date = :date")
-    fun getTodos(date: LocalDate): Flow<List<TodoEntity>>
-
-
-    @Query("DELETE FROM todo WHERE id = :id")
-    suspend fun deleteTodo(id: Int)
+    @Query("DELETE FROM manda")
+    suspend fun deleteAllManda()
 
 
 }
