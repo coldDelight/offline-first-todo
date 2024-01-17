@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.colddelight.database.converter.DateConverter
+import com.colddelight.database.dao.MandaDao
 import com.colddelight.database.dao.TodoDao
 import com.colddelight.database.model.TodoEntity
 
@@ -14,4 +15,5 @@ import com.colddelight.database.model.TodoEntity
 @TypeConverters(DateConverter::class)
 abstract class MTodoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
+    abstract fun mandaDao(): MandaDao
 }

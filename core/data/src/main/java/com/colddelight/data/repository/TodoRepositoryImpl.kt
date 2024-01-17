@@ -5,7 +5,11 @@ import com.colddelight.database.model.TodoEntity
 import com.colddelight.database.model.asEntity
 import com.colddelight.database.model.asModel
 import com.colddelight.model.Todo
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -15,6 +19,7 @@ class TodoRepositoryImpl @Inject constructor(
     private val todoDao: TodoDao,
 ) : TodoRepository {
     override fun getTodo(dateFlow: Flow<LocalDate>): Flow<List<Todo>> {
+
         return dateFlow.flatMapLatest {date->
             todoDao.getTodos(date).map { it.map { todoEntity -> todoEntity.asModel() } }
         }

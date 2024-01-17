@@ -3,6 +3,7 @@ package com.colddelight.database.di
 import android.content.Context
 import androidx.room.Room
 import com.colddelight.database.MTodoDatabase
+import com.colddelight.database.dao.MandaDao
 import com.colddelight.database.dao.TodoDao
 import dagger.Module
 import dagger.Provides
@@ -29,5 +30,11 @@ object DatabaseModule {
     fun providesTodoDao(
         database: MTodoDatabase,
     ): TodoDao = database.todoDao()
+
+
+    @Provides
+    fun providesMandaDao(
+        database: MTodoDatabase,
+    ): MandaDao = database.mandaDao()
 
 }
