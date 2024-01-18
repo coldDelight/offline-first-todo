@@ -2,6 +2,7 @@ package com.colddelight.data.repository
 
 import com.colddelight.database.dao.MandaDao
 import com.colddelight.database.model.MandaEntity
+import com.colddelight.database.model.asEntity
 import com.colddelight.database.model.asModel
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Manda
@@ -25,8 +26,8 @@ class MandaRepositoryImpl @Inject constructor(
         return mandaDao.getAllManda().map { mandaEntity -> mandaEntity.map { it.asModel() } }
     }
 
-    override suspend fun updateManda(id: Int, cnt: Int) {
-        mandaDao.updateManda(MandaEntity(cnt, id))
+    override suspend fun updateManda(manda: Manda) {
+        mandaDao.updateManda(manda.asEntity())
     }
 
     override suspend fun deleteAllManda() {

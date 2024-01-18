@@ -3,7 +3,6 @@ package com.colddelight.madalart
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.MandaRepository
-import com.colddelight.data.repository.TodoRepository
 import com.colddelight.model.Manda
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -54,7 +53,7 @@ class MandalArtViewModel @Inject constructor(
 
     fun updateManda(manda: Manda) {
         viewModelScope.launch {
-            repository.updateManda(manda.id, manda.cnt + 1)
+            repository.updateManda(Manda(id = manda.id, cnt = manda.cnt + 1))
         }
     }
 }
