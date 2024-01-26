@@ -1,5 +1,7 @@
 package com.colddelight.data.repository
 
+import com.colddelight.data.SyncTask
+import com.colddelight.data.model.SetAction
 import com.colddelight.database.dao.MandaDao
 import com.colddelight.database.model.MandaEntity
 import com.colddelight.database.model.asEntity
@@ -12,7 +14,8 @@ import javax.inject.Inject
 
 class MandaRepositoryImpl @Inject constructor(
     private val mandaDao: MandaDao,
-    private val userDataSource: UserPreferencesDataSource
+    private val userDataSource: UserPreferencesDataSource,
+    private val syncTask: SyncTask,
 ) : MandaRepository {
 
     override val isNewUser: Flow<Boolean> = userDataSource.isNewUser
@@ -28,10 +31,30 @@ class MandaRepositoryImpl @Inject constructor(
 
     override suspend fun updateManda(manda: Manda) {
         mandaDao.updateManda(manda.asEntity())
+
+        syncTask.syncReq(SetAction.InsertManda(manda))
     }
 
     override suspend fun deleteAllManda() {
         userDataSource.delIsNewUser()
         mandaDao.deleteAllManda()
+
+        repeat(9) {
+            syncTask.syncReq(SetAction.DelManda(it + 1))
+        }
+    }
+
+    override suspend fun sync(action: SetAction) {
+        when (action) {
+            is SetAction.DelManda -> {
+            }
+
+            is SetAction.InsertManda -> {
+            }
+
+            else -> {
+
+            }
+        }
     }
 }
