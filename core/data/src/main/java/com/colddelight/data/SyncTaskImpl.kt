@@ -1,7 +1,6 @@
 package com.colddelight.data
 
 import android.content.Context
-import android.util.Log
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -42,7 +41,7 @@ class SyncTaskImpl(
         }
 
         val uploadWorkRequest =
-            OneTimeWorkRequestBuilder<CustomWorker>().addTag("SyncWorkManager")
+            OneTimeWorkRequestBuilder<WriteWorker>().addTag("SyncWorkManager")
                 .setConstraints(syncConstraints).setInputData(inputData.build())
                 .build()
         val tmpRequest =

@@ -3,12 +3,11 @@ package com.colddelight.mtodo
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.colddelight.data.CustomWorker
+import com.colddelight.data.WriteWorker
 import com.colddelight.data.TmpWorker
 import com.colddelight.data.repository.MandaRepository
 import com.colddelight.data.repository.TodoRepository
@@ -40,7 +39,7 @@ class CustomWorkerFactory @Inject constructor(
     ): ListenableWorker? {
         return when (workerClassName) {
             TmpWorker::class.java.name -> TmpWorker(appContext, workerParameters)
-            CustomWorker::class.java.name -> CustomWorker(
+            WriteWorker::class.java.name -> WriteWorker(
                 appContext,
                 workerParameters,
                 todoRepository,

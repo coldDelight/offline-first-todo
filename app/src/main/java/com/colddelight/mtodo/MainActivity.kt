@@ -25,13 +25,13 @@ class MainActivity : ComponentActivity() {
             MTodoTheme {
                 MTodoApp()
 
-//                val isLogin by loginHelper.isLogin.collectAsState(true)
-//                if (!isLogin) {
-//                    LoginScreen()
-//                } else {
-//                    MTodoApp()
-//
-//                }
+                val isLogin by loginHelper.isLogin.collectAsState(false)
+                if (!isLogin) {
+                    LoginScreen()
+                } else {
+                    MTodoApp()
+
+                }
             }
         }
     }

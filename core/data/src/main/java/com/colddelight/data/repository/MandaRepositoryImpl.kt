@@ -8,6 +8,7 @@ import com.colddelight.database.model.asEntity
 import com.colddelight.database.model.asModel
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Manda
+import com.colddelight.network.datasource.TodoDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -15,8 +16,10 @@ import javax.inject.Inject
 class MandaRepositoryImpl @Inject constructor(
     private val mandaDao: MandaDao,
     private val userDataSource: UserPreferencesDataSource,
+    private val todoDataSource: TodoDataSource,
     private val syncTask: SyncTask,
-) : MandaRepository {
+
+    ) : MandaRepository {
 
     override val isNewUser: Flow<Boolean> = userDataSource.isNewUser
     override suspend fun initManda() {

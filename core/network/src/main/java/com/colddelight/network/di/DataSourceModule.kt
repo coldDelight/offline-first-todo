@@ -1,7 +1,7 @@
 package com.colddelight.network.di
 
-import com.colddelight.network.datasource.BookDataSource
-import com.colddelight.network.datasourceImpl.BookDataSourceImpl
+import com.colddelight.network.datasource.TodoDataSource
+import com.colddelight.network.datasourceImpl.TodoDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,8 +14,8 @@ object DataSourceModule {
     @Provides
     @Singleton
     fun provideBookDataSource(
-    ): BookDataSource {
-        return BookDataSourceImpl()
+    ): TodoDataSource {
+        return TodoDataSourceImpl()
     }
 
 

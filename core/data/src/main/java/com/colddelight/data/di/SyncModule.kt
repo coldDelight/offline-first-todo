@@ -1,7 +1,6 @@
 package com.colddelight.data.di
 
 import android.content.Context
-import com.colddelight.data.CustomWorker
 import com.colddelight.data.SyncTask
 import com.colddelight.data.SyncTaskImpl
 import dagger.Module
