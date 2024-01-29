@@ -277,7 +277,11 @@ fun BottomSheet(
                                 todoContent,
                                 todo.isDone,
                                 selectedDate.value,
-                                todo.id
+                                todo.updateTime,
+                                todo.isDel,
+                                todo.isSync,
+                                todo.originId,
+                                todo.id,
                             )
                         )
                         onDismissSheet(false, null)
@@ -331,9 +335,6 @@ fun TodoItem(
 @Composable
 fun DailyPreview() {
     val tmp = listOf<Todo>(
-        Todo("제목111", "내용11111", false, LocalDate.now()),
-        Todo("22222222", "내용133322222222222", false, LocalDate.now()),
-        Todo("제목222222", "내용133333331", false, LocalDate.now()),
     )
     DailyContent(
         today = LocalDate.now().toString(),

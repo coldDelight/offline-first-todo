@@ -6,12 +6,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class NetworkTodo(
     val id: Int = 0,
-    val is_done: Boolean,
     val name: String,
     val content: String,
+    val is_done: Boolean,
     val date: String,
-    val room_id: Int,
-//    val user_id: String,
+    val user_id: String = "",
+    val update_time: String,
+    val is_del: Boolean,
 )
 
 fun Todo.asNetWork() = NetworkTodo(
@@ -19,5 +20,9 @@ fun Todo.asNetWork() = NetworkTodo(
     content = content,
     is_done = isDone,
     date = date.toString(),
-    room_id = id
+    update_time = updateTime,
+    is_del = isDel,
 )
+
+
+

@@ -18,8 +18,7 @@ class MandaRepositoryImpl @Inject constructor(
     private val userDataSource: UserPreferencesDataSource,
     private val todoDataSource: TodoDataSource,
     private val syncTask: SyncTask,
-
-    ) : MandaRepository {
+) : MandaRepository {
 
     override val isNewUser: Flow<Boolean> = userDataSource.isNewUser
     override suspend fun initManda() {

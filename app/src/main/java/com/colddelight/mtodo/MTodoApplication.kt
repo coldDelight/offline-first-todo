@@ -7,8 +7,9 @@ import androidx.work.Configuration
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import com.colddelight.data.Sync
 import com.colddelight.data.WriteWorker
-import com.colddelight.data.TmpWorker
+import com.colddelight.data.SyncWorker
 import com.colddelight.data.repository.MandaRepository
 import com.colddelight.data.repository.TodoRepository
 import dagger.hilt.android.HiltAndroidApp
@@ -26,6 +27,11 @@ class MTodoApplication : Application(), Configuration.Provider {
             Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG)
                 .setWorkerFactory(workerFactory)
                 .build()
+
+    override fun onCreate() {
+        super.onCreate()
+        Sync.initialize(this)
+    }
 }
 
 class CustomWorkerFactory @Inject constructor(
@@ -38,7 +44,7 @@ class CustomWorkerFactory @Inject constructor(
         workerParameters: WorkerParameters
     ): ListenableWorker? {
         return when (workerClassName) {
-            TmpWorker::class.java.name -> TmpWorker(appContext, workerParameters)
+            SyncWorker::class.java.name -> SyncWorker(appContext, workerParameters, todoRepository)
             WriteWorker::class.java.name -> WriteWorker(
                 appContext,
                 workerParameters,

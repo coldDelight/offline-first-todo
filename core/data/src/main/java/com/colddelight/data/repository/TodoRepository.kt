@@ -12,6 +12,7 @@ interface TodoRepository {
     suspend fun toggleTodo(id:Int,isDone:Boolean)
     suspend fun delTodo(id: Int)
 
+    suspend fun write(action: SetAction)
 
-    suspend fun sync(action: SetAction)
+    suspend fun sync():Boolean
 }

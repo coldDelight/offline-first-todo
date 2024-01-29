@@ -17,10 +17,15 @@ class UserPreferencesDataSourceImpl @Inject constructor(
     object PreferencesKey {
         val SUPABASE_TOKEN = stringPreferencesKey("SUPABASE_TOKEN")
         val IS_NEWUSER = booleanPreferencesKey("IS_NEWUSER")
+        val UPDATE_TIME = stringPreferencesKey("UPDATE_TIME")
     }
 
     override val token = dataStore.data.map { preferences ->
         preferences[PreferencesKey.SUPABASE_TOKEN] ?: ""
+    }
+
+    override val updateTime = dataStore.data.map { preferences ->
+        preferences[PreferencesKey.UPDATE_TIME] ?: "0"
     }
 
     override val isNewUser = dataStore.data.map { preferences ->
@@ -48,6 +53,12 @@ class UserPreferencesDataSourceImpl @Inject constructor(
     override suspend fun delIsNewUser() {
         dataStore.edit { preferences ->
             preferences[PreferencesKey.IS_NEWUSER] = true
+        }
+    }
+
+    override suspend fun setUpdateTime(newUpdateTime: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKey.UPDATE_TIME] = newUpdateTime
         }
     }
 
