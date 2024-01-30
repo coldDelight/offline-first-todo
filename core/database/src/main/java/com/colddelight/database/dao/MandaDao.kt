@@ -41,5 +41,7 @@ interface MandaDao {
     @Query("SELECT id FROM manda WHERE origin_id = :originId")
     fun getMandaIdByOriginId(originId: Int): Int?
 
+    @Query("DELETE FROM manda")
+    suspend fun deleteAll()
 
 }

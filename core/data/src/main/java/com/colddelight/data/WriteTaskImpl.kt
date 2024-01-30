@@ -17,4 +17,7 @@ class WriteTaskImpl(
             writeWorkReq(type)
         ).enqueue()
     }
+    override fun cancelAll() {
+        WorkManager.getInstance(context).cancelAllWork()
+    }
 }

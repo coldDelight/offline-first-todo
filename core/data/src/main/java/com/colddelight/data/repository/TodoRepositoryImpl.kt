@@ -1,6 +1,7 @@
 package com.colddelight.data.repository
 
 import android.util.Log
+import com.colddelight.data.SyncWorker
 import com.colddelight.data.WriteTask
 import com.colddelight.data.model.WriteType
 import com.colddelight.data.util.newUpdateTime
@@ -90,5 +91,14 @@ class TodoRepositoryImpl @Inject constructor(
             Log.e("TAG", "sync: ${e.message}")
             return false
         }
+    }
+
+    override fun init() {
+        writeTask.writeReq(WriteType.Todo)
+    }
+
+    override suspend fun del() {
+        todoDao.deleteAll()
+        writeTask.cancelAll()
     }
 }

@@ -1,6 +1,7 @@
 package com.colddelight.data.repository
 
 import android.util.Log
+import com.colddelight.data.SyncWorker
 import com.colddelight.data.WriteTask
 import com.colddelight.data.model.WriteType
 import com.colddelight.data.util.newUpdateTime
@@ -25,8 +26,13 @@ class MandaRepositoryImpl @Inject constructor(
 ) : MandaRepository {
 
     override val isNewUser: Flow<Boolean> = userDataSource.isNewUser
+    override fun init() {
+        writeTask.writeReq(WriteType.Manda)
+    }
+
     override suspend fun initManda() {
-        val defaultMandaList = List(9) { MandaEntity(cnt = 0, false, updatedTimeStamp(), 0) }
+        val defaultMandaList =
+            List(9) { MandaEntity(cnt = 0, false, updatedTimeStamp(), 0, id = it + 1) }
         mandaDao.initManda(defaultMandaList)
         userDataSource.saveIsNewUser()
         writeTask.writeReq(WriteType.Manda)
@@ -44,6 +50,11 @@ class MandaRepositoryImpl @Inject constructor(
     override suspend fun deleteAllManda() {
         userDataSource.delIsNewUser()
         mandaDao.deleteAllManda()
+    }
+
+    override suspend fun del() {
+        mandaDao.deleteAll()
+        writeTask.cancelAll()
     }
 
     override suspend fun write(): Boolean {

@@ -2,6 +2,8 @@ package com.colddelight.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.colddelight.data.repository.MandaRepository
+import com.colddelight.data.repository.TodoRepository
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.network.SupabaseClient.client
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,8 +16,9 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userDataSource: UserPreferencesDataSource,
-
-    ) : ViewModel() {
+    private val todoRepository: TodoRepository,
+    private val mandaRepository: MandaRepository,
+) : ViewModel() {
 
 //    init {
 //        viewModelScope.launch {
@@ -31,15 +34,20 @@ class LoginViewModel @Inject constructor(
     fun checkLoginStatus(result: NativeSignInResult) {
         when (result) {
             is NativeSignInResult.Success -> {
+                todoRepository.init()
+                mandaRepository.init()
                 updateToken(client.auth.currentAccessTokenOrNull() ?: "")
             }
+
             is NativeSignInResult.ClosedByUser -> {
             }
+
             is NativeSignInResult.Error -> {
                 viewModelScope.launch {
                     loginG()
                 }
             }
+
             is NativeSignInResult.NetworkError -> {
 
             }
@@ -52,9 +60,4 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun delToken() {
-        viewModelScope.launch {
-            userDataSource.delToken()
-        }
-    }
 }

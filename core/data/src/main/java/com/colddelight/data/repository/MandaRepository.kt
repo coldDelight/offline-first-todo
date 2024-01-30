@@ -15,4 +15,9 @@ interface MandaRepository {
     suspend fun sync():Boolean
 
     val isNewUser: Flow<Boolean>
+
+    fun init()
+
+    suspend fun del()
+
 }

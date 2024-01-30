@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ import java.time.YearMonth
 @Composable
 fun HistoryScreen(
     viewModel: DailyViewModel = hiltViewModel(),
+    historyViewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val historyUiState by viewModel.dailyUiState.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
@@ -58,7 +60,8 @@ fun HistoryScreen(
                 },
                 insertTodo = { todo -> viewModel.insertTodo(todo) },
                 deleteTodo = { id -> viewModel.deleteTodo(id) },
-                onDateClick = { newDate -> viewModel.changeDate(newDate) }
+                onDateClick = { newDate -> viewModel.changeDate(newDate) },
+                logOut = { historyViewModel.logOut() }
             )
         }
     }
@@ -72,7 +75,8 @@ private fun HistoryContentWithState(
     onToggleTodo: (Int, Boolean) -> Unit,
     insertTodo: (Todo) -> Unit,
     deleteTodo: (Int) -> Unit,
-    onDateClick: (LocalDate) -> Unit
+    onDateClick: (LocalDate) -> Unit,
+    logOut: () -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
@@ -90,8 +94,8 @@ private fun HistoryContentWithState(
         is DailyUiState.Loading -> {}
         is DailyUiState.Error -> Text(text = uiState.msg)
         is DailyUiState.Success ->
-            Column() {
-                HistoryContent(state, onDateClick)
+            Column {
+                HistoryContent(state, onDateClick, logOut)
                 DailyContent(
                     uiState.today,
                     uiState.doneTodos,
@@ -108,14 +112,24 @@ private fun HistoryContentWithState(
 }
 
 @Composable
-fun HistoryContent(state: CalendarState, onDateClick: (LocalDate) -> Unit) {
-    HorizontalCalendar(
-        modifier = Modifier.padding(32.dp),
-        state = state,
-        dayContent = {
-            Day(it, onDateClick)
-        },
-    )
+fun HistoryContent(
+    state: CalendarState, onDateClick: (LocalDate) -> Unit,
+    logOut: () -> Unit
+) {
+    Column {
+        HorizontalCalendar(
+            modifier = Modifier.padding(32.dp),
+            state = state,
+            dayContent = {
+                Day(it, onDateClick)
+            },
+        )
+        Button(onClick = { logOut() }) {
+            Text(text = "로그아웃")
+
+        }
+    }
+
 }
 
 @Composable

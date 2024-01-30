@@ -43,5 +43,8 @@ interface TodoDao {
     @Query("SELECT id FROM todo WHERE origin_id = :originId AND is_del=0")
     fun getTodoIdByOriginId(originId: Int): Int?
 
+    @Query("DELETE FROM todo")
+    suspend fun deleteAll()
+
 
 }

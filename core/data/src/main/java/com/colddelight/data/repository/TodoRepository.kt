@@ -15,4 +15,7 @@ interface TodoRepository {
     suspend fun write():Boolean
 
     suspend fun sync():Boolean
+    fun init()
+
+    suspend fun del()
 }

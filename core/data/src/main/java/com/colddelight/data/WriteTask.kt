@@ -4,4 +4,5 @@ import com.colddelight.data.model.WriteType
 
 interface WriteTask {
     fun writeReq(type: WriteType)
+    fun cancelAll()
 }
