@@ -44,7 +44,7 @@ class CustomWorkerFactory @Inject constructor(
         workerParameters: WorkerParameters
     ): ListenableWorker? {
         return when (workerClassName) {
-            SyncWorker::class.java.name -> SyncWorker(appContext, workerParameters, todoRepository)
+            SyncWorker::class.java.name -> SyncWorker(appContext, workerParameters, todoRepository,mandaRepository)
             WriteWorker::class.java.name -> WriteWorker(
                 appContext,
                 workerParameters,

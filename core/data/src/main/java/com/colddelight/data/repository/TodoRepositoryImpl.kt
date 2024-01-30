@@ -40,6 +40,7 @@ class TodoRepositoryImpl @Inject constructor(
 
     override suspend fun toggleTodo(id: Int, isDone: Boolean) {
         todoDao.toggleTodo(id, isDone, updatedTimeStamp())
+        writeTask.writeReq(WriteType.Todo)
     }
 
 
@@ -50,13 +51,13 @@ class TodoRepositoryImpl @Inject constructor(
 
     override suspend fun write(): Boolean {
         return try {
-            val toWrite = todoDao.getToWriteTodos(userDataSource.updateTime.first())
+            val toWrite = todoDao.getToWriteTodos(userDataSource.todoUpdateTime.first())
             val originIdList = todoDataSource.insertTodo(toWrite.map { it.asModel() })
             val todosWithOriginId = toWrite.mapIndexed { index, todoEntity ->
                 todoEntity.copy(originId = originIdList[index], isSync = true)
             }
             todoDao.syncInsertTodo(todosWithOriginId)
-            userDataSource.setUpdateTime(newUpdateTime(toWrite.map { it.updateTime }))
+            userDataSource.setTodoUpdateTime(newUpdateTime(toWrite.map { it.updateTime }))
             true
         } catch (e: Exception) {
             Log.e("TAG", "sync: ${e.message}")
@@ -68,7 +69,7 @@ class TodoRepositoryImpl @Inject constructor(
     override suspend fun sync(): Boolean {
         try {
             val toSaveData =
-                todoDataSource.getTodo(userDataSource.updateTime.first()).map { it.asEntity() }
+                todoDataSource.getTodo(userDataSource.todoUpdateTime.first()).map { it.asEntity() }
             val originIdList = toSaveData.map { it.originId }
             val todoIdList = todoDao.getTodoIdByOriginIds(originIdList)
             val saveData = todoIdList.mapIndexed { index, id ->
@@ -81,7 +82,7 @@ class TodoRepositoryImpl @Inject constructor(
             todoDao.syncInsertTodo(saveData).apply {
                 val newUpdateTime = toSaveData.maxOfOrNull { it.updateTime }
                 if (!newUpdateTime.isNullOrEmpty()) {
-                    userDataSource.setUpdateTime(newUpdateTime)
+                    userDataSource.setTodoUpdateTime(newUpdateTime)
                 }
             }
             return true

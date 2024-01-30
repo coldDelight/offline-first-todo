@@ -9,9 +9,8 @@ class WriteTaskImpl(
     private val context: Context
 ) : WriteTask {
     override fun writeReq(type: WriteType) {
-        writeWorkReq(type)
         WorkManager.getInstance(context).beginUniqueWork(
-            WRITE_WORK,
+            WRITE_WORK + type,
             ExistingWorkPolicy.KEEP,
             syncWorkReq(type)
         ).then(

@@ -27,7 +27,7 @@ class WriteWorker @AssistedInject constructor(
             val writeSuccessfully = when (type) {
                 Sync.MANDA -> {
                     awaitAll(
-                        async { todoRepository.write() }
+                        async { mandaRepository.write() }
                     ).all { it }
                 }
 

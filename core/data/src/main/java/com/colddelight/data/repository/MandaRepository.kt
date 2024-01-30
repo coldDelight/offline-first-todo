@@ -10,7 +10,9 @@ interface MandaRepository {
     fun getAllManda(): Flow<List<Manda>>
     suspend fun updateManda(manda: Manda)
     suspend fun deleteAllManda()
-    suspend fun sync(action: WriteType)
+    suspend fun write():Boolean
+
+    suspend fun sync():Boolean
 
     val isNewUser: Flow<Boolean>
 }

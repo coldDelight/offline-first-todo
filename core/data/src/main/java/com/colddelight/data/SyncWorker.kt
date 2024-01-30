@@ -7,6 +7,7 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
+import com.colddelight.data.repository.MandaRepository
 import com.colddelight.data.repository.TodoRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -20,6 +21,7 @@ class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     @Assisted private val todoRepository: TodoRepository,
+    @Assisted private val mandaRepository: MandaRepository,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
@@ -28,7 +30,7 @@ class SyncWorker @AssistedInject constructor(
             val syncedSuccessfully = when (type) {
                 Sync.MANDA -> {
                     awaitAll(
-                        async { todoRepository.sync() }
+                        async { mandaRepository.sync() }
                     ).all { it }
                 }
 
@@ -40,7 +42,8 @@ class SyncWorker @AssistedInject constructor(
 
                 else -> {
                     awaitAll(
-                        async { todoRepository.sync() }
+                        async { todoRepository.sync() },
+                        async { mandaRepository.sync() }
                     ).all { it }
                 }
             }

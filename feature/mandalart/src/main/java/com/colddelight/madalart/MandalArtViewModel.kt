@@ -53,7 +53,9 @@ class MandalArtViewModel @Inject constructor(
 
     fun updateManda(manda: Manda) {
         viewModelScope.launch {
-            repository.updateManda(Manda(id = manda.id, cnt = manda.cnt + 1))
+            repository.updateManda(
+                manda.copy(cnt = manda.cnt+1)
+            )
         }
     }
 }
