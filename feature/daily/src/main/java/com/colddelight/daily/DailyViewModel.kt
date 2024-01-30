@@ -11,11 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +36,11 @@ class DailyViewModel @Inject constructor(
 
     fun insertTodo(todo: Todo) {
         viewModelScope.launch {
-            repository.insertTodo(todo)
+            repository.insertTodo(
+                todo.copy(
+                    updateTime = LocalDateTime.now().atZone(ZoneId.systemDefault()).toString()
+                )
+            )
         }
     }
 

@@ -1,8 +1,7 @@
 package com.colddelight.data.repository
 
-import com.colddelight.data.model.SetAction
+import com.colddelight.data.model.WriteType
 import com.colddelight.model.Manda
-import com.colddelight.model.Todo
 import kotlinx.coroutines.flow.Flow
 
 interface MandaRepository {
@@ -11,7 +10,7 @@ interface MandaRepository {
     fun getAllManda(): Flow<List<Manda>>
     suspend fun updateManda(manda: Manda)
     suspend fun deleteAllManda()
-    suspend fun sync(action: SetAction)
+    suspend fun sync(action: WriteType)
 
     val isNewUser: Flow<Boolean>
 }

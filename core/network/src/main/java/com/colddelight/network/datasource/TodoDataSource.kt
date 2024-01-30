@@ -6,6 +6,6 @@ import com.colddelight.network.model.NetworkTodo
 
 interface TodoDataSource {
     suspend fun getTodo(update: String): List<NetworkTodo>
-    suspend fun insertTodo(todo: Todo)
+    suspend fun insertTodo(todo: List<Todo>):List<Int>
     suspend fun delTodo(id: Int)
 }

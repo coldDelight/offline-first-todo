@@ -1,8 +1,10 @@
 package com.colddelight.data.repository
 
 import android.util.Log
-import com.colddelight.data.SyncTask
-import com.colddelight.data.model.SetAction
+import com.colddelight.data.WriteTask
+import com.colddelight.data.model.WriteType
+import com.colddelight.data.util.newUpdateTime
+import com.colddelight.data.util.updatedTimeStamp
 import com.colddelight.database.dao.TodoDao
 import com.colddelight.database.model.asEntity
 import com.colddelight.database.model.asModel
@@ -14,13 +16,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
 import javax.inject.Inject
 
 class TodoRepositoryImpl @Inject constructor(
     private val todoDao: TodoDao,
-    private val syncTask: SyncTask,
+    private val writeTask: WriteTask,
     private val todoDataSource: TodoDataSource,
     private val userDataSource: UserPreferencesDataSource,
 ) : TodoRepository {
@@ -32,49 +32,62 @@ class TodoRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertTodo(todo: Todo) {
-        val id = todoDao.insertTodo(todo.asEntity())
-        syncTask.syncReq(SetAction.InsertTodo(todo.copy(id = id.toInt())))
+        todoDao.insertTodo(
+            todo.copy(updateTime = updatedTimeStamp(), isSync = false).asEntity()
+        )
+        writeTask.writeReq(WriteType.Todo)
     }
 
     override suspend fun toggleTodo(id: Int, isDone: Boolean) {
-        todoDao.toggleTodo(id, isDone)
+        todoDao.toggleTodo(id, isDone, updatedTimeStamp())
     }
+
 
     override suspend fun delTodo(id: Int) {
-        todoDao.deleteTodo(id)
-        syncTask.syncReq(SetAction.DelTodo(id))
+        todoDao.deleteTodo(id, updatedTimeStamp())
+        writeTask.writeReq((WriteType.Todo))
     }
 
-    override suspend fun write(action: SetAction) {
-        when (action) {
-            is SetAction.DelTodo -> {
-                todoDataSource.delTodo(action.id)
+    override suspend fun write(): Boolean {
+        return try {
+            val toWrite = todoDao.getToWriteTodos(userDataSource.updateTime.first())
+            val originIdList = todoDataSource.insertTodo(toWrite.map { it.asModel() })
+            val todosWithOriginId = toWrite.mapIndexed { index, todoEntity ->
+                todoEntity.copy(originId = originIdList[index], isSync = true)
             }
-
-            is SetAction.InsertTodo -> {
-                todoDataSource.insertTodo(action.todo)
-            }
-
-            else -> {
-
-            }
+            todoDao.syncInsertTodo(todosWithOriginId)
+            userDataSource.setUpdateTime(newUpdateTime(toWrite.map { it.updateTime }))
+            true
+        } catch (e: Exception) {
+            Log.e("TAG", "sync: ${e.message}")
+            false
         }
+
     }
 
     override suspend fun sync(): Boolean {
-        val toSaveData =
-            todoDataSource.getTodo(userDataSource.updateTime.first()).map { it.asEntity() }
-        val originIdList = toSaveData.map { it.originId }
-        val todoIdList = todoDao.getTodoIdByOriginIds(originIdList)
-
-        val saveData = todoIdList.mapIndexed { index, id -> toSaveData[index].copy(id = id ?: 0) }
-
-        todoDao.syncInsertTodo(saveData).apply {
-            val newUpdateTime = toSaveData.maxOfOrNull { it.updateTime }
-            if (!newUpdateTime.isNullOrEmpty()) {
-                userDataSource.setUpdateTime(newUpdateTime)
+        try {
+            val toSaveData =
+                todoDataSource.getTodo(userDataSource.updateTime.first()).map { it.asEntity() }
+            val originIdList = toSaveData.map { it.originId }
+            val todoIdList = todoDao.getTodoIdByOriginIds(originIdList)
+            val saveData = todoIdList.mapIndexed { index, id ->
+                toSaveData[index].copy(
+                    id = id ?: 0,
+                    isSync = true
+                )
             }
+
+            todoDao.syncInsertTodo(saveData).apply {
+                val newUpdateTime = toSaveData.maxOfOrNull { it.updateTime }
+                if (!newUpdateTime.isNullOrEmpty()) {
+                    userDataSource.setUpdateTime(newUpdateTime)
+                }
+            }
+            return true
+        } catch (e: Exception) {
+            Log.e("TAG", "sync: ${e.message}")
+            return false
         }
-        return true
     }
 }

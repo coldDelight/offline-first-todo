@@ -5,8 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
-import androidx.room.Upsert
 import com.colddelight.database.model.TodoEntity
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
@@ -22,15 +20,17 @@ interface TodoDao {
     suspend fun syncInsertTodo(todos: List<TodoEntity>): List<Long>
 
 
-    @Query("UPDATE todo SET is_done = :isDone WHERE id = :id")
-    suspend fun toggleTodo(id: Int, isDone: Boolean)
+    @Query("UPDATE todo SET is_done = :isDone,update_time = :updateTime,is_sync = 0 WHERE id = :id")
+    suspend fun toggleTodo(id: Int, isDone: Boolean, updateTime: String)
 
-    @Query("SELECT * FROM todo WHERE date = :date")
+    @Query("SELECT * FROM todo WHERE date = :date AND is_del=0")
     fun getTodos(date: LocalDate): Flow<List<TodoEntity>>
 
+    @Query("SELECT * FROM todo WHERE update_time > :updateTime AND is_sync=0")
+    fun getToWriteTodos(updateTime: String): List<TodoEntity>
 
-    @Query("DELETE FROM todo WHERE id = :id")
-    suspend fun deleteTodo(id: Int)
+    @Query("UPDATE todo SET is_del = 1,update_time= :updateTime,is_sync = 0 WHERE id = :id")
+    suspend fun deleteTodo(id: Int, updateTime: String)
 
 
     @Transaction
@@ -40,7 +40,7 @@ interface TodoDao {
         }
     }
 
-    @Query("SELECT id FROM todo WHERE origin_id = :originId")
+    @Query("SELECT id FROM todo WHERE origin_id = :originId AND is_del=0")
     fun getTodoIdByOriginId(originId: Int): Int?
 
 

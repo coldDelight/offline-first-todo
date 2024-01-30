@@ -6,13 +6,12 @@ import androidx.work.WorkManager
 
 object Sync {
     fun initialize(context: Context) {
-        WorkManager.getInstance(context).apply {
-            enqueueUniqueWork(
-                SYNC_WORK,
-                ExistingWorkPolicy.KEEP,
-                SyncWorker.startUpSyncWork(),
-            )
-        }
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            SYNC_WORK,
+            ExistingWorkPolicy.KEEP,
+            SyncWorker.startUpSyncWork(),
+        )
     }
 
     internal const val ALL = 1
@@ -21,4 +20,5 @@ object Sync {
 }
 
 internal const val SYNC_WORK = "SyncWork"
+internal const val WRITE_WORK = "WriteWork"
 

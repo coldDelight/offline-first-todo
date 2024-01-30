@@ -1,7 +1,6 @@
 package com.colddelight.data
 
 import android.content.Context
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
@@ -24,9 +23,8 @@ class SyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        Log.e("TAG", "doWork: 새로운 Sync작업의 시작이다")
         try {
-            val type = inputData.getInt("type", 1)
+            val type = inputData.getInt("type", 0)
             val syncedSuccessfully = when (type) {
                 Sync.MANDA -> {
                     awaitAll(
@@ -46,18 +44,16 @@ class SyncWorker @AssistedInject constructor(
                     ).all { it }
                 }
             }
+
             if (syncedSuccessfully) {
                 Result.success()
             } else {
                 Result.retry()
             }
-
-
             Result.success()
         } catch (e: Exception) {
             Result.failure()
         }
-
     }
 
     companion object {

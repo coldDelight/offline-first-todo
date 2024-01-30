@@ -22,6 +22,7 @@ fun Todo.asNetWork() = NetworkTodo(
     date = date.toString(),
     update_time = updateTime,
     is_del = isDel,
+    id = originId
 )
 
 

@@ -27,6 +27,9 @@ fun TodoEntity.asModel() = Todo(
     isDone = isDone,
     date = date,
     updateTime = updateTime,
+    isDel = isDel,
+    isSync = isSync,
+    originId = originId,
     id = id
 )
 

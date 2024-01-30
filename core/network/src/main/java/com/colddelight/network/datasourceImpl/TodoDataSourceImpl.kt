@@ -4,10 +4,12 @@ import android.util.Log
 import com.colddelight.model.Todo
 import com.colddelight.network.SupabaseClient.client
 import com.colddelight.network.datasource.TodoDataSource
+import com.colddelight.network.model.NetworkId
 import com.colddelight.network.model.NetworkTodo
 import com.colddelight.network.model.asNetWork
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 
 class TodoDataSourceImpl() : TodoDataSource {
     override suspend fun getTodo(update: String): List<NetworkTodo> {
@@ -18,13 +20,12 @@ class TodoDataSourceImpl() : TodoDataSource {
         }.decodeList()
     }
 
-    override suspend fun insertTodo(todo: Todo) {
-        val d = client.postgrest["Todo"].upsert(todo.asNetWork(), onConflict = "id")
-
-//        Log.e("TAG", "insertTodo:${d.decodeSingle<NetworkTodo>().name} 업로드 ")
-//        client.from("Todo").upsert()
-//        val d = client.postgrest["Todo"].insert(todo.asNetWork())
-//        d.decodeSingle<NetworkTodo>().id
+    override suspend fun insertTodo(todo: List<Todo>): List<Int> {
+        val result =
+            client.postgrest["Todo"].upsert(todo.map { it.asNetWork() }, onConflict = "id") {
+                select(Columns.list("id"))
+            }.decodeList<NetworkId>()
+        return result.map { it.id }
     }
 
     override suspend fun delTodo(id: Int) {

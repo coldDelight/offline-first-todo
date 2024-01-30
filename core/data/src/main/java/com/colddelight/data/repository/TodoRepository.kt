@@ -1,6 +1,6 @@
 package com.colddelight.data.repository
 
-import com.colddelight.data.model.SetAction
+import com.colddelight.data.model.WriteType
 import com.colddelight.model.Todo
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -12,7 +12,7 @@ interface TodoRepository {
     suspend fun toggleTodo(id:Int,isDone:Boolean)
     suspend fun delTodo(id: Int)
 
-    suspend fun write(action: SetAction)
+    suspend fun write():Boolean
 
     suspend fun sync():Boolean
 }
