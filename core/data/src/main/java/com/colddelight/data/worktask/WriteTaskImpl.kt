@@ -1,23 +1,21 @@
-package com.colddelight.data
+package com.colddelight.data.worktask
 
 import android.content.Context
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
-import com.colddelight.data.model.WriteType
+import com.colddelight.data.worker.SYNC_WORK
+import com.colddelight.data.worker.WRITE_WORK
 
 class WriteTaskImpl(
     private val context: Context
 ) : WriteTask {
-    override fun writeReq(type: WriteType) {
+    override fun writeReq() {
         WorkManager.getInstance(context).beginUniqueWork(
-            WRITE_WORK + type,
+            SYNC_WORK + WRITE_WORK,
             ExistingWorkPolicy.KEEP,
-            syncWorkReq(type)
+            syncWorkReq()
         ).then(
-            writeWorkReq(type)
+            writeWorkReq()
         ).enqueue()
-    }
-    override fun cancelAll() {
-        WorkManager.getInstance(context).cancelAllWork()
     }
 }

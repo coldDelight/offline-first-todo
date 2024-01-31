@@ -14,25 +14,14 @@ class HistoryViewModel @Inject constructor(
     private val userDataSource: UserPreferencesDataSource,
     private val todoRepository: TodoRepository,
     private val mandaRepository: MandaRepository,
-
-
-    ) : ViewModel() {
-
-//    init {
-//        viewModelScope.launch {
-//            bookDataSource.getBook()
-//        }
-//    }
-
+) : ViewModel() {
 
     fun logOut() {
         viewModelScope.launch {
-            userDataSource.setMandaUpdateTime("0")
-            userDataSource.setTodoUpdateTime("0")
             userDataSource.delIsNewUser()
             userDataSource.delToken()
-            todoRepository.del()
-            mandaRepository.del()
+            todoRepository.reset()
+            mandaRepository.reset()
         }
     }
 }

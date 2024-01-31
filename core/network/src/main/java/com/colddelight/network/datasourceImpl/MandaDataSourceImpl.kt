@@ -1,12 +1,10 @@
 package com.colddelight.network.datasourceImpl
 
-import com.colddelight.model.Manda
 import com.colddelight.network.SupabaseClient
 import com.colddelight.network.datasource.MandaDataSource
 import com.colddelight.network.model.NetworkId
 import com.colddelight.network.model.NetworkManda
 import com.colddelight.network.model.NetworkTodo
-import com.colddelight.network.model.asNetWork
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 
@@ -19,23 +17,14 @@ class MandaDataSourceImpl() : MandaDataSource {
         }.decodeList()
     }
 
-    override suspend fun insertManda(manda: List<Manda>): List<Int> {
+    override suspend fun insertManda(manda: List<NetworkManda>): List<Int> {
         val result =
             SupabaseClient.client.postgrest["Manda"].upsert(
-                manda.map { it.asNetWork() },
-                onConflict = "id"
+                manda, onConflict = "id"
             ) {
                 select(Columns.list("id"))
             }.decodeList<NetworkId>()
         return result.map { it.id }
-    }
-
-    override suspend fun delManda(id: Int) {
-        SupabaseClient.client.postgrest["Manda"].delete {
-            filter {
-                NetworkTodo::id eq id
-            }
-        }
     }
 
 }

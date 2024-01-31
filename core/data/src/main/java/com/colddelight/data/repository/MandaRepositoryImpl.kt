@@ -1,15 +1,14 @@
 package com.colddelight.data.repository
 
 import android.util.Log
-import com.colddelight.data.SyncWorker
-import com.colddelight.data.WriteTask
-import com.colddelight.data.model.WriteType
+import com.colddelight.data.worktask.WriteTask
 import com.colddelight.data.util.newUpdateTime
 import com.colddelight.data.util.updatedTimeStamp
 import com.colddelight.database.dao.MandaDao
 import com.colddelight.database.model.MandaEntity
 import com.colddelight.database.model.asEntity
 import com.colddelight.database.model.asModel
+import com.colddelight.database.model.asNetWorkModel
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Manda
 import com.colddelight.network.datasource.MandaDataSource
@@ -26,16 +25,13 @@ class MandaRepositoryImpl @Inject constructor(
 ) : MandaRepository {
 
     override val isNewUser: Flow<Boolean> = userDataSource.isNewUser
-    override fun init() {
-        writeTask.writeReq(WriteType.Manda)
-    }
 
     override suspend fun initManda() {
         val defaultMandaList =
             List(9) { MandaEntity(cnt = 0, false, updatedTimeStamp(), 0, id = it + 1) }
         mandaDao.initManda(defaultMandaList)
         userDataSource.saveIsNewUser()
-        writeTask.writeReq(WriteType.Manda)
+        writeTask.writeReq()
     }
 
     override fun getAllManda(): Flow<List<Manda>> {
@@ -44,7 +40,7 @@ class MandaRepositoryImpl @Inject constructor(
 
     override suspend fun updateManda(manda: Manda) {
         mandaDao.updateManda(manda.asEntity().copy(updateTime = updatedTimeStamp(), isSync = false))
-        writeTask.writeReq(WriteType.Manda)
+        writeTask.writeReq()
     }
 
     override suspend fun deleteAllManda() {
@@ -52,20 +48,22 @@ class MandaRepositoryImpl @Inject constructor(
         mandaDao.deleteAllManda()
     }
 
-    override suspend fun del() {
+    override suspend fun reset() {
         mandaDao.deleteAll()
-        writeTask.cancelAll()
+        userDataSource.setMandaUpdateTime("0")
     }
 
     override suspend fun write(): Boolean {
         return try {
             val toWrite = mandaDao.getToWriteMandas(userDataSource.mandaUpdateTime.first())
-            val originIdList = mandaDataSource.insertManda(toWrite.map { it.asModel() })
+            val originIdList = mandaDataSource.insertManda(toWrite.map { it.asNetWorkModel() })
             val mandasWithOriginId = toWrite.mapIndexed { index, mandaEntity ->
                 mandaEntity.copy(originId = originIdList[index], isSync = true)
             }
-            mandaDao.syncInsertManda(mandasWithOriginId)
-            userDataSource.setMandaUpdateTime(newUpdateTime(toWrite.map { it.updateTime }))
+
+            mandaDao.syncInsertManda(mandasWithOriginId).run {
+                userDataSource.setMandaUpdateTime(newUpdateTime(toWrite.map { it.updateTime }))
+            }
             true
         } catch (e: Exception) {
             Log.e("TAG", "sync: ${e.message}")
@@ -75,24 +73,19 @@ class MandaRepositoryImpl @Inject constructor(
 
     override suspend fun sync(): Boolean {
         try {
-            val toSaveData =
-                mandaDataSource.getManda(userDataSource.mandaUpdateTime.first())
-                    .map { it.asEntity() }
-            val originIdList = toSaveData.map { it.originId }
+            val toSync = mandaDataSource.getManda(userDataSource.mandaUpdateTime.first())
+                .map { it.asEntity() }
+            val originIdList = toSync.map { it.originId }
 
             val todoIdList = mandaDao.getMandaIdByOriginIds(originIdList)
-            val saveData = todoIdList.mapIndexed { index, id ->
-                toSaveData[index].copy(
+            val toSave = todoIdList.mapIndexed { index, id ->
+                toSync[index].copy(
                     id = id ?: 0,
                     isSync = true
                 )
             }
-
-            mandaDao.syncInsertManda(saveData).apply {
-                val newUpdateTime = toSaveData.maxOfOrNull { it.updateTime }
-                if (!newUpdateTime.isNullOrEmpty()) {
-                    userDataSource.setMandaUpdateTime(newUpdateTime)
-                }
+            mandaDao.syncInsertManda(toSave).run {
+                userDataSource.setMandaUpdateTime(newUpdateTime(toSync.map { it.updateTime }))
             }
             return true
         } catch (e: Exception) {
@@ -100,4 +93,6 @@ class MandaRepositoryImpl @Inject constructor(
             return false
         }
     }
+
+
 }

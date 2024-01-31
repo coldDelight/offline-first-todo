@@ -1,14 +1,13 @@
 package com.colddelight.data.repository
 
 import android.util.Log
-import com.colddelight.data.SyncWorker
-import com.colddelight.data.WriteTask
-import com.colddelight.data.model.WriteType
+import com.colddelight.data.worktask.WriteTask
 import com.colddelight.data.util.newUpdateTime
 import com.colddelight.data.util.updatedTimeStamp
 import com.colddelight.database.dao.TodoDao
 import com.colddelight.database.model.asEntity
 import com.colddelight.database.model.asModel
+import com.colddelight.database.model.asNetworkModel
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Todo
 import com.colddelight.network.datasource.TodoDataSource
@@ -36,55 +35,51 @@ class TodoRepositoryImpl @Inject constructor(
         todoDao.insertTodo(
             todo.copy(updateTime = updatedTimeStamp(), isSync = false).asEntity()
         )
-        writeTask.writeReq(WriteType.Todo)
+        writeTask.writeReq()
     }
 
     override suspend fun toggleTodo(id: Int, isDone: Boolean) {
         todoDao.toggleTodo(id, isDone, updatedTimeStamp())
-        writeTask.writeReq(WriteType.Todo)
+        writeTask.writeReq()
     }
-
 
     override suspend fun delTodo(id: Int) {
         todoDao.deleteTodo(id, updatedTimeStamp())
-        writeTask.writeReq((WriteType.Todo))
+        writeTask.writeReq()
     }
 
     override suspend fun write(): Boolean {
         return try {
             val toWrite = todoDao.getToWriteTodos(userDataSource.todoUpdateTime.first())
-            val originIdList = todoDataSource.insertTodo(toWrite.map { it.asModel() })
+            val originIdList = todoDataSource.insertTodo(toWrite.map { it.asNetworkModel() })
             val todosWithOriginId = toWrite.mapIndexed { index, todoEntity ->
                 todoEntity.copy(originId = originIdList[index], isSync = true)
             }
-            todoDao.syncInsertTodo(todosWithOriginId)
-            userDataSource.setTodoUpdateTime(newUpdateTime(toWrite.map { it.updateTime }))
+            todoDao.syncInsertTodo(todosWithOriginId).run {
+                userDataSource.setTodoUpdateTime(newUpdateTime(toWrite.map { it.updateTime }))
+            }
             true
         } catch (e: Exception) {
             Log.e("TAG", "sync: ${e.message}")
             false
         }
-
     }
 
     override suspend fun sync(): Boolean {
         try {
-            val toSaveData =
+            val toSync =
                 todoDataSource.getTodo(userDataSource.todoUpdateTime.first()).map { it.asEntity() }
-            val originIdList = toSaveData.map { it.originId }
+            val originIdList = toSync.map { it.originId }
             val todoIdList = todoDao.getTodoIdByOriginIds(originIdList)
-            val saveData = todoIdList.mapIndexed { index, id ->
-                toSaveData[index].copy(
+            val toSave = todoIdList.mapIndexed { index, id ->
+                toSync[index].copy(
                     id = id ?: 0,
                     isSync = true
                 )
             }
 
-            todoDao.syncInsertTodo(saveData).apply {
-                val newUpdateTime = toSaveData.maxOfOrNull { it.updateTime }
-                if (!newUpdateTime.isNullOrEmpty()) {
-                    userDataSource.setTodoUpdateTime(newUpdateTime)
-                }
+            todoDao.syncInsertTodo(toSave).run {
+                userDataSource.setTodoUpdateTime(newUpdateTime(toSync.map { it.updateTime }))
             }
             return true
         } catch (e: Exception) {
@@ -93,12 +88,8 @@ class TodoRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun init() {
-        writeTask.writeReq(WriteType.Todo)
-    }
-
-    override suspend fun del() {
-        todoDao.deleteAll()
-        writeTask.cancelAll()
+    override suspend fun reset() {
+        todoDao.deleteAllTodo()
+        userDataSource.setTodoUpdateTime("0")
     }
 }

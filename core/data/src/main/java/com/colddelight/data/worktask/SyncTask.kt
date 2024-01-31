@@ -1,12 +1,13 @@
-package com.colddelight.data
+package com.colddelight.data.worktask
 
 import android.content.Context
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
+import com.colddelight.data.worker.SYNC_WORK
+import com.colddelight.data.worker.SyncWorker
 
-object Sync {
+object SyncTask {
     fun initialize(context: Context) {
-
         WorkManager.getInstance(context).enqueueUniqueWork(
             SYNC_WORK,
             ExistingWorkPolicy.KEEP,
@@ -14,11 +15,4 @@ object Sync {
         )
     }
 
-    internal const val ALL = 1
-    internal const val TODO = 2
-    internal const val MANDA = 3
 }
-
-internal const val SYNC_WORK = "SyncWork"
-internal const val WRITE_WORK = "WriteWork"
-

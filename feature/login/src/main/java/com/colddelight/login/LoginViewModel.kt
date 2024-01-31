@@ -16,16 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userDataSource: UserPreferencesDataSource,
-    private val todoRepository: TodoRepository,
-    private val mandaRepository: MandaRepository,
 ) : ViewModel() {
-
-//    init {
-//        viewModelScope.launch {
-//            bookDataSource.getBook()
-//        }
-//    }
-
 
     suspend fun loginG() {
         client.auth.signInWith(Google)
@@ -34,8 +25,6 @@ class LoginViewModel @Inject constructor(
     fun checkLoginStatus(result: NativeSignInResult) {
         when (result) {
             is NativeSignInResult.Success -> {
-                todoRepository.init()
-                mandaRepository.init()
                 updateToken(client.auth.currentAccessTokenOrNull() ?: "")
             }
 

@@ -1,7 +1,6 @@
 package com.colddelight.network.model
 
-import com.colddelight.model.Manda
-import com.colddelight.model.Todo
+
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,11 +11,6 @@ data class NetworkManda(
     val user_id: String = "",
 )
 
-fun Manda.asNetWork() = NetworkManda(
-    cnt = cnt,
-    update_time = updateTime,
-    id = originId
-)
 
 
 

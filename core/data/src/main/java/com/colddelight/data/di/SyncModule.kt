@@ -1,8 +1,8 @@
 package com.colddelight.data.di
 
 import android.content.Context
-import com.colddelight.data.WriteTask
-import com.colddelight.data.WriteTaskImpl
+import com.colddelight.data.worktask.WriteTask
+import com.colddelight.data.worktask.WriteTaskImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

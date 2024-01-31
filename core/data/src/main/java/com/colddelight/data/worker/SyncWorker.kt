@@ -1,9 +1,12 @@
-package com.colddelight.data
+package com.colddelight.data.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
+import com.colddelight.data.worktask.WorkConstraints
 import com.colddelight.data.repository.MandaRepository
 import com.colddelight.data.repository.TodoRepository
 import dagger.assisted.Assisted
@@ -13,8 +16,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 
+internal const val SYNC_WORK = "SyncWork"
+
 @HiltWorker
-class WriteWorker @AssistedInject constructor(
+class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     @Assisted private val todoRepository: TodoRepository,
@@ -23,26 +28,11 @@ class WriteWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            val type = inputData.getInt("type", 0)
-            val writeSuccessfully = when (type) {
-                Sync.MANDA -> {
-                    awaitAll(
-                        async { mandaRepository.write() }
-                    ).all { it }
-                }
-
-                Sync.TODO -> {
-                    awaitAll(
-                        async { todoRepository.write() }
-                    ).all { it }
-                }
-
-                else -> {
-                    false
-                }
-            }
-
-            if (writeSuccessfully) {
+            val syncedSucceed = awaitAll(
+                async { todoRepository.sync() },
+                async { mandaRepository.sync() }
+            ).all { it }
+            if (syncedSucceed) {
                 Result.success()
             } else {
                 Result.retry()
@@ -53,4 +43,11 @@ class WriteWorker @AssistedInject constructor(
         }
     }
 
+    companion object {
+        fun startUpSyncWork() = OneTimeWorkRequestBuilder<SyncWorker>().addTag(SYNC_WORK)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setConstraints(WorkConstraints)
+            .build()
+    }
 }
+

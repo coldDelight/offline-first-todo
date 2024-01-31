@@ -40,3 +40,9 @@ fun NetworkManda.asEntity() = MandaEntity(
     isSync = true,
     originId = id,
 )
+
+fun MandaEntity.asNetWorkModel() = NetworkManda(
+    cnt = cnt,
+    update_time = updateTime,
+    id = originId
+)

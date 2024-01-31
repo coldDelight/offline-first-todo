@@ -33,6 +33,16 @@ fun TodoEntity.asModel() = Todo(
     id = id
 )
 
+fun TodoEntity.asNetworkModel() = NetworkTodo(
+    name = name,
+    content = content,
+    is_done = isDone,
+    date = date.toString(),
+    update_time = updateTime,
+    is_del = isDel,
+    id = originId
+)
+
 fun Todo.asEntity() = TodoEntity(
     name = name,
     content = content,
